@@ -41,6 +41,8 @@ Before you begin, ensure you have installed:
     ```bash
     MONGO_URI=mongodb://mongo:27017/temperature
     N8N_WEBHOOK_URL=http://n8n:5678/webhook/94342cd3-90d0-4ce1-b640-e40c7f65c9f0
+    PORT=5000
+    TEMPERATURE_INTERVAL=2000
     ```
 
     Frontend (.env):
@@ -48,9 +50,19 @@ Before you begin, ensure you have installed:
     VITE_API_URL=http://localhost:5000
     ```
 
-3. **Start the Application**    
+3. **Build the Application with Docker**    
     ```bash
-    docker-compose up --build
+    docker-compose build
+    ```
+
+4. **Run the Application Conatiner with Docker**    
+    ```bash
+    docker-compose up
+    ```
+
+4. **Close the Application Conatiner with Docker**    
+    ```bash
+    docker-compose down
     ```
 
 ## 📋 API Documentation
@@ -73,6 +85,7 @@ Response:
     [
         {
             "id": "string",
+            "timestamp":"string",
             "temperature": "number",
             "status": "string",
             "processedAt": "string"
@@ -81,6 +94,36 @@ Response:
 
 ## Architecture Overview
 
+The architecture of the temperature processing system is designed to efficiently handle the flow of temperature data from the backend to the frontend, using **n8n workflows** for processing. Below is an outline of the key components and data flow.
+
+## System Components
+
+1. **Backend (Temperature Generation)**  
+   The backend is responsible for generating the raw temperature data. This data is then sent to two destinations:
+   - **MongoDB**: The raw temperature data is stored in a MongoDB database for persistent storage.
+   - **n8n**: The same temperature data is sent as a raw event to the **n8n webhook** for further processing.
+
+2. **n8n Workflow**  
+   n8n is used to process the temperature data. Upon receiving the webhook request from the backend:
+   - The temperature data is evaluated using conditional logic (If/Else conditions).
+   - Based on the temperature value:
+     - If the temperature is greater than 25°C, a response indicating "High Temperature" is generated.
+     - If the temperature is less than or equal to 25°C, a response indicating "Low Temperature" is generated.
+
+3. **MongoDB**  
+   Once n8n processes the temperature data and generates the appropriate response, the workflow updates the temperature information in **MongoDB**. The database is updated with the processed temperature and status (e.g., high or low temperature).
+
+4. **Frontend**  
+   After the data is updated in MongoDB, it is then sent to the **frontend** for display to the user. The frontend displays the current temperature status (high or low) based on the data retrieved from the database.
+
+## Data Flow
+
+1. **Temperature Generation**: The backend generates raw temperature data.
+2. **Storing in MongoDB**: The backend stores the raw temperature data in MongoDB.
+3. **Sending to n8n**: The backend sends the raw temperature data to n8n via a webhook.
+4. **Processing in n8n**: n8n evaluates the temperature using If/Else conditions and generates a response (high or low).
+5. **Updating MongoDB**: The response (high/low temperature) is stored back into MongoDB.
+6. **Displaying to Frontend**: The frontend retrieves the processed data from MongoDB and displays it to the user.
 
 ## Processing Approach Options
 
