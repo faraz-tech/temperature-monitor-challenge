@@ -1,22 +1,80 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { Container, Row, Col, Badge, ListGroup, Card } from 'react-bootstrap'
 import './assets/css/App.css'
+import { useEffect, useState } from 'react';
+import io from 'socket.io-client';
+
+const API_URL = import.meta.env.VITE_API_URL || process.env.REACT_APP_API_URL; 
+const socket = io(API_URL);
 
 function App() {
 
-  const recentReadings = [
-    { temperature: '22°C', status: 'NORMAL', time: '2 minutes ago' },
-    { temperature: '23°C', status: 'NORMAL', time: '2 minutes ago' },
-    { temperature: '24°C', status: 'NORMAL', time: '2 minutes ago' },
-    { temperature: '25°C', status: 'HIGH', time: '2 minutes ago' },
-    { temperature: '26°C', status: 'HIGH', time: '2 minutes ago' }
-  ];
+  const [currentTemperature, setCurrentTemperature] = useState({
+    data: 'Loading...',
+    status: 'Loading...',
+    time: 'Loading...'
+  })
+  const [recentReadings, setRecentReadings] = useState([]);
+  const [isConnected, setIsConnected] = useState(false);
 
-  const currentTemperature = {
-    data: '22°C',
-    status: 'NORMAL',
-    time: '2 seconds ago'
-  };
+  useEffect(() => {
+
+    const fetchRecentReadings = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/temperature/latest`)
+        const data = await response.json()
+        setRecentReadings(data)
+        if (data.length > 0) {
+          const latestReading = data[0]
+          setCurrentTemperature({
+            data: latestReading.temperature,
+            status: latestReading.status,
+            time: timeAgo(new Date(latestReading.time))
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching recent readings:', error.message)
+      }
+    }
+
+    fetchRecentReadings()
+
+    const intervalId = setInterval(fetchRecentReadings, 2000);
+
+    socket.on('connect', () => {
+      setIsConnected(true);
+    });
+
+    socket.on('new-reading', (newReading) => {
+      setCurrentTemperature({
+        data: newReading.temperature,
+        status: newReading.status,
+        time: timeAgo(new Date(newReading.time))
+      });
+    });
+
+    socket.on('disconnect', () => {
+      setIsConnected(false);
+    });
+
+    return () => {
+      clearInterval(intervalId);
+    }
+
+  }, [])
+
+  const timeAgo = (date) => {
+    const now = new Date()
+    const seconds = Math.floor((now - date) / 1000)
+    console.log(now, date);
+    if (seconds < 60) return `${seconds} seconds ago`
+    const minutes = Math.floor(seconds / 60)
+    if (minutes < 60) return `${minutes} minutes ago`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours} hours ago`
+    const days = Math.floor(hours / 24)
+    return `${days} days ago`
+  }
 
   return (
     <Container className="mt-5">
@@ -33,7 +91,7 @@ function App() {
             </Col>
           </Row>
           <div className="position-absolute top-0 end-0 m-3">
-            <span className="dot bg-success"></span> Connected
+            <span className={`dot ${isConnected ? 'bg-success' : 'bg-warning'}`}></span> Connected
           </div>
         </Card.Body>
       </Card>
@@ -49,7 +107,7 @@ function App() {
                   <h4 className="fw-bold">{reading.temperature}</h4>
                   <span>{reading.time}</span>
                 </div>
-                <Badge bg={reading.status === 'NORMAL' ? 'success' : 'warning'}>{reading.status}</Badge>
+                <Badge bg={reading.status.toLowerCase() === 'normal' ? 'success' : 'warning'}>{reading.status}</Badge>
               </ListGroup.Item>
             ))}
           </ListGroup>
