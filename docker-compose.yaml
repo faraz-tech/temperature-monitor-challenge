@@ -1,0 +1,59 @@
+services:
+
+  mongo:
+    image: mongo:latest
+    container_name: temp-mongo  
+    ports:
+      - "27017:27017"  
+    networks:
+      - temperature_network
+    volumes:
+      - mongo-data:/data/db  
+
+  backend:
+    build: ./backend
+    container_name: temp-backend
+    ports:
+      - "5000:5000"  
+    networks:
+      - temperature_network
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./frontend
+    container_name: temp-frontend
+    ports:
+      - "3000:3000"  
+    networks:
+      - temperature_network
+    env_file:
+      - ./frontend/.env
+
+  n8n:
+    build: ./n8n
+    container_name: temp-n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - N8N_EDITOR_BASE_URL=http://localhost:5678
+      - N8N_WORKFLOW_IMPORT_PATH=/home/node/.n8n/workflows
+    networks:
+      - temperature_network
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflows:/home/node/.n8n/workflows 
+    restart: always
+
+networks:
+  temperature_network:
+    driver: bridge 
+
+volumes:
+  n8n_data:
+  mongo-data:
+    driver: local

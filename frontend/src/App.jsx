@@ -12,7 +12,7 @@ function App() {
   const [currentTemperature, setCurrentTemperature] = useState({
     data: 'Loading...',
     status: 'Loading...',
-    time: 'Loading...'
+    processedAt: 'Loading...'
   })
   const [recentReadings, setRecentReadings] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -29,7 +29,7 @@ function App() {
           setCurrentTemperature({
             data: latestReading.temperature,
             status: latestReading.status,
-            time: timeAgo(new Date(latestReading.time))
+            processedAt: timeAgo(new Date(latestReading.processedAt))
           })
         }
       } catch (error) {
@@ -49,7 +49,7 @@ function App() {
       setCurrentTemperature({
         data: newReading.temperature,
         status: newReading.status,
-        time: timeAgo(new Date(newReading.time))
+        processedAt: timeAgo(new Date(newReading.processedAt))
       });
     });
 
@@ -85,7 +85,7 @@ function App() {
               <h6 className="fw-bold">Current Temperature</h6>
               <h2 className="fw-bold">{currentTemperature.data}</h2>
               <p>
-                <span className="text-success fw-bold">{currentTemperature.status}</span> LAST UPDATED: {currentTemperature.time}
+                <span className="text-success fw-bold">{currentTemperature.status}</span> LAST UPDATED: {currentTemperature.processedAt}
               </p>
             </Col>
           </Row>
@@ -104,7 +104,7 @@ function App() {
               <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center mb-2 bg-light border">
                 <div>
                   <h4 className="fw-bold">{reading.temperature}</h4>
-                  <span>{reading.time}</span>
+                  <span>{reading.processedAt}</span>
                 </div>
                 <Badge bg={reading.status.toLowerCase() === 'normal' ? 'success' : 'warning'}>{reading.status}</Badge>
               </ListGroup.Item>

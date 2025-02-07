@@ -25,6 +25,13 @@ connectDB();
 
 app.use('/api/temperature', temperatureRoutes);
 
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString()
+  });
+});
+
 emitTemperatureReadings(io);
 
 const PORT = process.env.PORT || 5000;

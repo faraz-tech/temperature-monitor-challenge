@@ -1,0 +1,128 @@
+{
+  "name": "Temperature Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "94342cd3-90d0-4ce1-b640-e40c7f65c9f0",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        100
+      ],
+      "id": "7129ee34-ff04-445c-9ac4-a040184ca7ff",
+      "name": "Webhook",
+      "webhookId": "94342cd3-90d0-4ce1-b640-e40c7f65c9f0"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"reading\": {\n    \"id\": \"{{ $json.body.id }}\",\n    \"status\": \"NORMAL\",\n    \"processedAt\": \"{{ $json.body.timestamp }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        200
+      ],
+      "id": "ca686093-04a5-4e2b-a41a-d5ceca466051",
+      "name": "Normal Temperature"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"reading\": {\n    \"id\": \"{{ $json.body.id }}\",\n    \"status\": \"HIGH\",\n    \"processedAt\": \"{{ $json.body.timestamp }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "00c1e893-2a8b-4ea2-be46-a0d0f7585ea7",
+      "name": "High Temperature"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "81aa8d26-1727-494c-8e6d-026f123b5be4",
+              "leftValue": "={{ $json.body.temperature }}",
+              "rightValue": 25,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -220,
+        100
+      ],
+      "id": "6d8af830-6067-4e9f-8aa7-c2fc46f15f76",
+      "name": "Temperature Check",
+      "alwaysOutputData": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Temperature Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Temperature Check": {
+      "main": [
+        [
+          {
+            "node": "High Temperature",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normal Temperature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7ff8de60-6686-490f-af1b-24c3b945fd07",
+  "meta": {
+    "instanceId": "ba5f045d1b248bfb01c72b7f2df2fcd3125ad3e06406f6e9eac27f5df3f37873"
+  },
+  "id": "ORbcoGN0cgdStk7f",
+  "tags": []
+}
