@@ -77,7 +77,7 @@ function App() {
               <h6 className="fw-bold">Current Temperature</h6>
               <h2 className="fw-bold">{currentTemperature.data}</h2>
               <p>
-                <span className="text-success fw-bold">{currentTemperature.status}</span> LAST UPDATED: {currentTemperature.processedAt}
+                <span className={`${currentTemperature.status.toLowerCase() === 'normal' ? 'text-success' : 'text-warning'} fw-bold`}>{currentTemperature.status}</span> LAST UPDATED: {currentTemperature.processedAt}
               </p>
             </Col>
           </Row>
