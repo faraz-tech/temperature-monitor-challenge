@@ -65,6 +65,56 @@ Before you begin, ensure you have installed:
     docker-compose down
     ```
 
+5. **Manual Workflow Import and Activation in n8n, if get any issue**
+
+    If the workflow is not visible after starting the n8n Docker container, follow these steps to manually import and activate the workflow:
+
+    #### Steps to Import and Activate the Workflow
+
+    a. **Start n8n Docker Container**    
+   First, ensure that the **n8n Docker container** is running. You can start it by running the following command in your terminal:
+   ```bash
+   docker run --rm -d -p 5678:5678 n8nio/n8n
+    ```
+
+    b. **Access the n8n Web Interface**  
+    Open the n8n UI in your browser (http://localhost:5678) and log in with your credentials.
+
+    c. **Check for Existing Workflow**
+    If the desired workflow is not showing, it may need to be manually imported from the workflows folder in n8n.
+
+    d. **Find Workflow File in n8n**  
+    - The workflows can be found in the workflows directory inside the n8n Docker container or in your local n8n directory. The workflow is typically stored as a .json file.
+    - Locate the workflow file you want to import, usually located at:
+
+    ```bash
+    n8n/workflows/
+    ```
+
+    e. **Manually Import the Workflow**  
+    If the workflow is missing from the n8n interface, you can manually import the workflow file.
+
+    f. **Navigate to the n8n UI.**  
+    - Click on the "Import" button in the top-right corner of the workflow editor.  
+    - Choose the .json workflow file from the workflows folder and import it into n8n.
+    - Activate the Workflow
+    - Once the workflow is successfully imported, open it, and click the Activate button at the top of the workflow editor to enable the workflow.
+
+    g. **Get the Production URL**  
+    After activating the workflow, you will need to get the production URL (or webhook URL) for the workflow. This URL is used to make requests from the backend to the n8n webhook.
+
+    - You can find this URL in the Webhook node configuration within the workflow.
+    - Copy the Webhook URL to use in your backend.
+    - Update Backend Environment
+    - In the backend application, update the environment variables to include the newly obtained production URL. This will ensure that the backend sends requests to the correct n8n webhook endpoint.
+
+    Example:
+    ```
+    N8N_WEBHOOK_URL=https://your-n8n-webhook-url.com
+    ```
+
+
+
 ## 📋 API Documentation
 
 ### Backend API Endpoints
