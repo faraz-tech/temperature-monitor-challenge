@@ -24,14 +24,6 @@ function App() {
         const response = await fetch(`${API_URL}/api/temperature/latest`)
         const data = await response.json()
         setRecentReadings(data)
-        if (data.length > 0) {
-          const latestReading = data[0]
-          setCurrentTemperature({
-            data: latestReading.temperature,
-            status: latestReading.status,
-            processedAt: timeAgo(new Date(latestReading.processedAt))
-          })
-        }
       } catch (error) {
         console.error('Error fetching recent readings:', error.message)
       }
@@ -104,7 +96,7 @@ function App() {
               <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center mb-2 bg-light border">
                 <div>
                   <h4 className="fw-bold">{reading.temperature}</h4>
-                  <span>{reading.processedAt}</span>
+                  <span>{timeAgo(new Date(reading.processedAt))}</span>
                 </div>
                 <Badge bg={reading.status.toLowerCase() === 'normal' ? 'success' : 'warning'}>{reading.status}</Badge>
               </ListGroup.Item>
