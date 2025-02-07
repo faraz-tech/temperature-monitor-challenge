@@ -12,6 +12,15 @@ const emitTemperatureReadings = (io) => {
       const id = uuidv4();
       const timestamp = new Date().toISOString();
       try {
+
+        const rawReading = new Temperature({
+          id: id,
+          temperature: parseFloat(temperature),
+          timestamp: timestamp
+        });
+  
+        await rawReading.save();
+
         const response = await axios.post(process.env.N8N_WEBHOOK_URL, {
             id: id, 
             temperature: parseFloat(temperature), 
@@ -25,15 +34,18 @@ const emitTemperatureReadings = (io) => {
         const { success, reading } = response.data;
 
         if (success) {
-          const newReading = new Temperature({
-              id: reading.id,
-              temperature,
-              status: reading.status
-          });
+          
+          await Temperature.updateOne(
+            { id: reading.id },
+            {
+              status: reading.status,
+              processedAt: new Date(reading.processedAt)
+            }
+          );
 
-          await newReading.save();
+          const updatedReading = await Temperature.findOne({ id: reading.id });
 
-          io.emit('new-reading', newReading);
+          io.emit('new-reading', updatedReading);
 
         } else {
             console.error('n8n Webhook Response: Failed to process');

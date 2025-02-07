@@ -13,12 +13,14 @@ const temperatureSchema = new mongoose.Schema({
     required: true
   },
   status: {
-    type: String,
-    required: true
+    type: String
   },
-  processedAt: {
+  timestamp: {
     type: Date,
     default: Date.now
+  },
+  processedAt: {
+    type: Date
   }
 });
 
