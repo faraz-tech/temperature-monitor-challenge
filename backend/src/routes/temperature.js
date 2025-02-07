@@ -53,7 +53,7 @@ const emitTemperatureReadings = (io) => {
       } catch (error) {
         console.error('Error sending temperature to n8n webhook:', error.message);
       }
-    }, 5000);
+    }, process.env.TEMPERATURE_INTERVAL || 2000);
 };
 
 router.get('/latest', async (req, res) => {
