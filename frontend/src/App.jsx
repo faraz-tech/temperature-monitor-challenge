@@ -4,7 +4,7 @@ import './assets/css/App.css'
 import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
-const API_URL = import.meta.env.VITE_API_URL || process.env.REACT_APP_API_URL; 
+const API_URL = import.meta.env.VITE_API_URL;
 const socket = io(API_URL);
 
 function App() {
@@ -66,7 +66,6 @@ function App() {
   const timeAgo = (date) => {
     const now = new Date()
     const seconds = Math.floor((now - date) / 1000)
-    console.log(now, date);
     if (seconds < 60) return `${seconds} seconds ago`
     const minutes = Math.floor(seconds / 60)
     if (minutes < 60) return `${minutes} minutes ago`
